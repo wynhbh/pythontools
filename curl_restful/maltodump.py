@@ -53,8 +53,9 @@ def main(filename):
 	if '.pcap' in filename:
 		if 'pcapfiles' not in os.listdir(WORK_PATH):
 			os.mkdir('pcapfiles')
-		shutil.copy(filename,WORK_PATH+'/pcapfiles')
-		os.chdir('pcapfiles')
+		subdir = str(len(os.listdir(WORK_PATH+'/pcapfiles')))
+		shutil.copy(filename,WORK_PATH+'/pcapfiles'+subdir)
+		os.chdir('pcapfiles/'+subdir)
 		os.system('bro -r '+filename+' local')
 	else:
 		smaple(WORK_PATH,filename)
