@@ -2,7 +2,21 @@ import requests
 import json
 import pycurl
 import os
+import sys
 import shutil
+import logging
+import logging.handlers
+
+LOG_FILE = "maltodump.log"
+handler = logging.handlers.RotatingFileHandler(LOG_FILE,maxBytes = 1024*1024, backupCount = 5)
+fmt = '%(asctime)s - %(filename)s - %(name)s - %(message)s'
+
+formatter = logging.Formatter(fmt)
+handler.setFormatter(formatter)
+
+logger = logging.getLogger('maltodump')
+logger.addHandler(handler)
+logger.setLevel(logging.DEBUG)
 
 def sample(work_path,sample_file):
 	"""anlayze the malware sample
@@ -15,9 +29,9 @@ def sample(work_path,sample_file):
 	REST_UPLOAD_URL = "http://"+REST_SERVER+":"+REST_PORT+"/tasks/create/file"
 	SAMPLE_FILE = sample_file
 
-	with open(SAMPLE_FILE,"rb") as sample:
-		multipart_file = {"file": ("temp_file_name",sample)}
-		request = requests.post(REST_URL, files=multipart_file)
+	with open(SAMPLE_FILE,"rb") as s:
+		multipart_file = {"file": ("temp_file_name",s)}
+		request = requests.post(REST_UPLOAD_URL, files=multipart_file)
 
 	# request.status_code = 200 ?
 		
@@ -42,23 +56,30 @@ def sample(work_path,sample_file):
 		c.close()
 	
 	os.system('bro -r out.pcap local')
+	logger.info(sample_file+' has been processed successfully, resulting logs are in '+ work_path+'/samples/'+task_id)
 
 	
 def main(filename):
 	""" get malware network behavior from cuckoo and transfer pcap to log
 	@param filename: filename of malware sample or .pcap file
 	"""
-
+	
 	WORK_PATH = os.getcwd()
+	logger.info('Working path is '+WORK_PATH+', file '+filename+' is going to be processed.')
+
 	if '.pcap' in filename:
+		logger.info(filename+' is a pcap file.')
 		if 'pcapfiles' not in os.listdir(WORK_PATH):
 			os.mkdir('pcapfiles')
 		subdir = str(len(os.listdir(WORK_PATH+'/pcapfiles')))
-		shutil.copy(filename,WORK_PATH+'/pcapfiles'+subdir)
+		os.mkdir('pcapfiles/'+subdir)
+		shutil.copy(WORK_PATH+'/'+filename,WORK_PATH+'/pcapfiles/'+subdir)
 		os.chdir('pcapfiles/'+subdir)
-		os.system('bro -r '+filename+' local')
+		os.system('bro -r *.pcap local')
+		logger.info(filename+' has been processed successfully, resulting logs are in '+ WORK_PATH+'/pcapfiles/'+subdir)
 	else:
-		smaple(WORK_PATH,filename)
+		logger.info(filename+' is a malware sample.')
+		sample(WORK_PATH,filename)
 	
 if __name__ == "__main__":
-	main(sys.args[1:])
+	main(sys.argv[1])
