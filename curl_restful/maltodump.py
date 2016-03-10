@@ -6,6 +6,8 @@ import sys
 import shutil
 import logging
 import logging.handlers
+import time
+
 
 LOG_FILE = "maltodump.log"
 handler = logging.handlers.RotatingFileHandler(LOG_FILE,maxBytes = 1024*1024, backupCount = 5)
@@ -23,11 +25,13 @@ def sample(work_path,sample_file):
 	@param sample_file: malware sample
 	"""
 	# upload malware to cuckoo
-	REST_SERVER = "159.226.16.26"
+	REST_SERVER = "159.226.16.31"
 	REST_PORT = "5455"
 	REST_DOWNLOAD_URL = "http://"+REST_SERVER+":"+REST_PORT+"/pcap/get/"
 	REST_UPLOAD_URL = "http://"+REST_SERVER+":"+REST_PORT+"/tasks/create/file"
+	REST_TASK_VIEW = "http://"+REST_SERVER+":"+REST_PORT+"/tasks/view/"
 	SAMPLE_FILE = sample_file
+	
 
 	with open(SAMPLE_FILE,"rb") as s:
 		multipart_file = {"file": ("temp_file_name",s)}
@@ -35,22 +39,37 @@ def sample(work_path,sample_file):
 
 	# request.status_code = 200 ?
 		
-	json_decoder = json.JSONDecoder()
-	task_id = json_decoder.decode(request.text)["task_id"]
-
-	# task_id = None ?
+	# json_decoder = json.JSONDecoder()
+	# task_id = json_decoder.decode(request.text)["task_id"]
+	task_id = request.json()["task_id"]
+	
+	
+	# return task_id < 0, mean sth is wrong, like an analyzed sample.
+	if task_id < 0:
+		logger.error("task_id is "+str(task_id)+", maybe an analyzed sample")
+		return
+	
+	task_id = str(task_id)
 
 	# transfer result to log
-	if 'samples' not in os.listdir(work_path):
-		os.makedirs('samples/'+task_id)
-	shutil.copy(filename,work_path+'/samples/'+task_id)
+	# if 'samples' not in os.listdir(work_path):
+	
+	os.makedirs('samples/'+task_id)
+	shutil.copy(sample_file,work_path+'/samples/'+task_id)
 	os.chdir('samples/'+task_id)
+	
+	# wait util cuckoo finished running
+	taks_view_url = REST_TASK_VIEW+task_id
+	r = requests.get(taks_view_url)
+	while(r.json()["task"]["status"] != "completed"):
+		time.sleep(5)
+		r = requests.get(taks_view_url)
 	
 	# get network dump of the sample from cuckoo
 	dump_url = REST_DOWNLOAD_URL+task_id
 	with open('out.pcap','wb') as f:
 		c = pycurl.Curl()
-		c.setopt(c.RUL,dump_url)
+		c.setopt(c.URL,dump_url)
 		c.setopt(c.WRITEDATA,f)
 		c.perform()
 		c.close()
