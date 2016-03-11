@@ -106,7 +106,7 @@ def main(filename):
 		
 		shutil.copy(WORK_PATH+'/'+filename,WORK_PATH+'/samples/'+file_path+'/logs')
 		os.chdir('samples/'+file_path+'/logs')
-		os.system('bro -r '+filename+' local')
+		os.system('bro -r *.pcap local')
 		logger.info(filename+' has been processed successfully, resulting logs in '+ WORK_PATH+'/samples/'+file_path+'/logs')
 	else:
 		logger.info(filename+' is a malware sample.')
