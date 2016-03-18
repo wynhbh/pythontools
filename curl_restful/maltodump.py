@@ -126,7 +126,7 @@ def run(WORK_PATH):
 
     # anlayze the sample
     sample_Nm = Sample.where().count()
-    if sample_Nm > 0 or Sample.where(file_MD5 = file_md5).count() > 0:
+    if sample_Nm > 0 and Sample.where(file_MD5 = file_md5).count() > 0:
         logger.info('File %s has analyzed with md5: %s' % (sample_conf_name, file_md5))
         return
     else:
