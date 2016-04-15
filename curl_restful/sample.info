@@ -2,12 +2,12 @@
 
 [sample]
 # path to the sample
-path = 
+path = /home/cuckoo/malware/zte
 # file name of the sample 
-name =
+name = bifrost.exe
 # type of sample, if .pcap type = 0, else type = 1. 
-type = 0
+type = 1
 # tag of the sample, like trojan name, or botnet name.
-tag =
+tag = malware
 # description about the sample, like the URL where sample been downloaded.
-description =
+description = zte 1
