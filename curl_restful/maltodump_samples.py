@@ -14,7 +14,6 @@ import json
 import logging
 import logging.handlers
 import ConfigParser
-import argparse
 from database import Database, Model, Field, execute_raw_sql
 
 
@@ -53,7 +52,7 @@ class Sample(Model):
 def init_db():
     """ init database connection for store processing information.
     """
-  
+
     conf_parser = ConfigParser.ConfigParser()
     conf_parser.read('db.conf')
     
@@ -197,26 +196,17 @@ def process(sample, REST_SERVER, REST_PORT, timeout):
     sample.cuckoo_tag = get_cuckoo_tag(task_id, REST_SERVER, REST_PORT)
 
 
-def run(sample_info):
+def run(sample_info, WORK_PATH, REST_SERVER, REST_PORT, timeout):
     """ run the analysis about the sample file.
     @param sample_info: information about the sample file to be submitted.
+    @param WORK_PATH: the path of the process script.
+    @param sample: the sample to be processed
+    @param REST_SERVER: cuckoo server
+    @param REST_PORT: cuckoo restful api port
     """
-    
-    WORK_PATH = os.getcwd()
     submit_time = time.time()
     
     logger.info('Working path is %s' % (WORK_PATH))
-
-    # to connet to database to store process.
-    init_db()
-
-    # to get the cuckoo connection infos
-    cuckoo_conf_parser = ConfigParser.ConfigParser()
-    cuckoo_conf_parser.read('cuckoo.conf')
-
-    REST_SERVER = cuckoo_conf_parser.get("cuckoo", "REST_SERVER")
-    REST_PORT = cuckoo_conf_parser.get("cuckoo", "REST_PORT")
-    timeout = cuckoo_conf_parser.get("cuckoo", "timeout")
 
     # directory of storage of sample and process results 
     if 'samples' not in os.listdir(WORK_PATH):
@@ -290,12 +280,33 @@ def run(sample_info):
     return 
 
 
-def main(sample_info):
+def main(samples_file):
     """ get malware network behavior from cuckoo and transfer pcap to log
     """
 
-    run(sample_info)
+    WORK_PATH = os.getcwd()
+
+    # to connet to database to store process.
+    init_db()
+
+    # to get the cuckoo connection infos
+    cuckoo_conf_parser = ConfigParser.ConfigParser()
+    cuckoo_conf_parser.read('cuckoo.conf')
+
+    REST_SERVER = cuckoo_conf_parser.get("cuckoo", "REST_SERVER")
+    REST_PORT = cuckoo_conf_parser.get("cuckoo", "REST_PORT")
+    timeout = cuckoo_conf_parser.get("cuckoo", "timeout")
+
+    config = ConfigParser.RawConfigParser()
+    config.read('sample.info')
+
+    with open(samples_file) as samples:
+        for line in samples:
+            samplename = line.strip()
+            config.set("sample", "name", samplename)
+            config.write(open('sample.info', 'w'))
+            os.system('cat sample.info')
+            run('sample.info', WORK_PATH, REST_SERVER, REST_PORT, timeout)
     
 if __name__ == "__main__":
-
     main(sys.argv[1])
