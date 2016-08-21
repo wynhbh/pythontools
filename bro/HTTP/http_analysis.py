@@ -23,7 +23,7 @@ def get_http_logs():
     #search http logs
     #sql_str = "select log_path from samples where id > 0"
 
-    sql_str = "select log_path from samples  where file_name like '%Angler-EK%' and file_name not like '%payload%' order by id"
+    sql_str = "select log_path from samples  where file_name like '%Angler-%' and file_name not like '%payload%' order by id"
 
     httpfiles = []
 
