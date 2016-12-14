@@ -2,11 +2,24 @@
 
 import sys
 import re
+import time
 import numpy as np
 from numpy import (log, asarray)
 from scipy.special import entr
 from bs4 import BeautifulSoup
 from bs4 import CData
+
+def english_words():
+    """
+    return a english word dictionary
+    @return: a string list
+    """
+    word_list = []
+    with open("english_word.txt") as fr:
+        for line in fr.readlines():
+            word_list.append(line.strip())
+    return word_list
+
 
 def get_entropy(pk, base=None):
     """
@@ -33,6 +46,8 @@ def get_probability_sequence(file):
     @return: a probability sequence of words.
     """
     word_dic = {}
+    no_word_strings = {}
+    english_word_list = english_words()
 
     soup = BeautifulSoup(open(file))
 
@@ -44,7 +59,7 @@ def get_probability_sequence(file):
     #with open(file) as fr:
     #for line in soup.get_text():
     text = soup.get_text()
-    print text
+    #print text
     s = re.findall(r"\w+", text)
     for i in s:
         if i not in word_dic:
@@ -54,7 +69,17 @@ def get_probability_sequence(file):
     print len(word_dic)
     #print word_dic.keys()
 
+    #print(time.)
+    """
+
+    for i in word_dic:
+        if i not in english_word_list:
+            no_word_strings[i] = word_dic[i]
+    """
+
+    #strings_values = no_word_strings.values()
     word_values = word_dic.values()
+    #return [float(i)/sum(strings_values) for i in strings_values]
     return [float(i)/sum(word_values) for i in word_values]
 
 
