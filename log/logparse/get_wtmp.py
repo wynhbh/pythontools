@@ -6,36 +6,17 @@ import re
 import time
 
 
-def record_check(line):
-    """
-    @param line: a line from wtmp/btmp
-    @return: the number of a record item
-    """
-
-    c = 0
-
-    rs = line.strip().split(' ')
-
-    for i in rs:
-        if i != '':
-            c += 1
-
-    return c
-
-    # sum([1 for i in line.strip().split(' ') if i != ''])
-
-
 def main(argv):
 
 
     sp = argv[0]    # sudo password
-    des_file = './btmp'  # destination file to record btmp log
+    des_file = './wtmp'  # destination file to record wtmp log
     tmp_file = 'tmp_file'
     begindir = "/var/log/"
     backup = []
     record_f = ''
 
-    p = re.compile(r'btmp*')
+    p = re.compile(r'wtmp*')
 
     for root, dirs, files in os.walk(begindir):
         for file in files:
@@ -45,7 +26,7 @@ def main(argv):
 
 
     if len(backup) > 0:
-        command = 'echo ' + sp + '|sudo -S lastb -F -w -i > ' + tmp_file
+        command = 'last -F -w -i > ' + tmp_file
         os.system(command)
 
         with open(tmp_file) as fr:
@@ -53,16 +34,15 @@ def main(argv):
 
         os.system('rm ' + tmp_file)
 
-
-    # copy btmp to a file
+    # copy wtmp to a file
     for i in backup:
-        command = 'echo ' + sp + '|sudo -S lastb -F -w -i -f' + i + '>> ' + des_file
+        command = 'last -F -w -i -f' + i + '>> ' + des_file
         os.system(command)
 
 
     while 1:
         time.sleep(10)
-        command = 'echo ' + sp + '|sudo -S lastb -F -w -i > ' + tmp_file
+        command = 'last -F -w -i > ' + tmp_file
         os.system(command)
 
         new_records = []
