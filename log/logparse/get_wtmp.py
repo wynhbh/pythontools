@@ -8,10 +8,8 @@ import time
 
 def main(argv):
 
-
-    sp = argv[0]    # sudo password
     des_file = './wtmp'  # destination file to record wtmp log
-    tmp_file = 'tmp_file'
+    tmp_file = 'tmp_wtmp'
     begindir = "/var/log/"
     backup = []
     record_f = ''
@@ -24,22 +22,27 @@ def main(argv):
             if match:
                 backup.append(begindir + file)
 
-
-    if len(backup) > 0:
-        command = 'last -F -w -i > ' + tmp_file
+    # copy wtmp to a file
+    for file in backup:
+        command = 'last -F -w -i -f ' + file + '> ' + tmp_file
         os.system(command)
 
-        with open(tmp_file) as fr:
-            record_f = fr.readline().strip()
+        if file == '/var/log/wtmp':
+            with open(tmp_file) as fr:
+                for line in fr:
+                    n = sum([1 for i in line.strip().split(' ') if i != ''])
+                    if n == 15:
+                        record_f = fr.readline()
+
+        with open(des_file, 'a') as fw, open(tmp_file) as fr:
+            for line in fr:
+                n = sum([1 for i in line.strip().split(' ') if i != ''])
+                if n == 15:
+                    fw.write(line)
 
         os.system('rm ' + tmp_file)
 
-    # copy wtmp to a file
-    for i in backup:
-        command = 'last -F -w -i -f' + i + '>> ' + des_file
-        os.system(command)
-
-
+    # update new records
     while 1:
         time.sleep(10)
         command = 'last -F -w -i > ' + tmp_file
@@ -48,18 +51,21 @@ def main(argv):
         new_records = []
         with open(tmp_file) as fr:
             for line in fr:
-                if line.strip() != record_f:
+                n = sum([1 for i in line.strip().split(' ') if i != ''])
+                if n == 15 and line != record_f:
                     new_records.append(line)
-                else:
+                elif n == 15 and line == record_f:
                     break
+                else:
+                    pass
+
         # update the record flag
         if new_records != []:
             record_f = new_records[0]
-
-        # save the new records
-        with open(des_file, 'a') as fw:
-            for i in new_records:
-                fw.write(i)
+            # save the new records
+            with open(des_file, 'a') as fw:
+                for i in new_records:
+                    fw.write(i)
 
         os.system('rm ' + tmp_file)
 
