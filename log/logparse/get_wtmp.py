@@ -37,7 +37,8 @@ def main(argv):
                 for line in fr:
                     n = sum([1 for i in line.strip().split(' ') if i != ''])
                     if n == 15:
-                        record_f = fr.readline()
+                        record_f = line
+                        break
 
         with open(des_file, 'a') as fw, open(tmp_file) as fr:
             for line in fr:
