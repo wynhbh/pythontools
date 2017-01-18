@@ -56,11 +56,11 @@ def init_db():
     conf_parser = ConfigParser.ConfigParser()
     conf_parser.read('db.conf')
     
-    db_host = conf_parser.get("db","host")
-    db_port = conf_parser.get("db","port")
-    db_user = conf_parser.get("db","user")
-    db_passwd = conf_parser.get("db","password")
-    db_database = conf_parser.get("db","database")
+    db_host = conf_parser.get("db", "host")
+    db_port = conf_parser.get("db", "port")
+    db_user = conf_parser.get("db", "user")
+    db_passwd = conf_parser.get("db", "password")
+    db_database = conf_parser.get("db", "database")
     
     db_config = {
         'host': db_host,
@@ -82,8 +82,8 @@ def upload_sample_cuckoo(SAMPLE_FILE, REST_SERVER, REST_PORT):
 
     REST_UPLOAD_URL = 'http://%s:%s/tasks/create/file' % (REST_SERVER, REST_PORT)       # upload malware to cuckoo
 
-    with open(SAMPLE_FILE,"rb") as s:
-        multipart_file = {"file": ("temp_file_name",s)}
+    with open(SAMPLE_FILE, "rb") as s:
+        multipart_file = {"file": ("temp_file_name", s)}
         request = requests.post(REST_UPLOAD_URL, files=multipart_file)
 
     task_id = request.json()["task_id"]
@@ -98,11 +98,11 @@ def sample_pcap_process(task_id, REST_SERVER, REST_PORT):
 
     REST_PCAP_URL = 'http://%s:%s/pcap/get/' % (REST_SERVER, REST_PORT)       # download pcap from cuckoo
 
-    dump_url = REST_PCAP_URL+str(task_id)
-    with open('out.pcap','wb') as f:
+    dump_url = REST_PCAP_URL + str(task_id)
+    with open('out.pcap', 'wb') as f:
         c = pycurl.Curl()
-        c.setopt(c.URL,dump_url)
-        c.setopt(c.WRITEDATA,f)
+        c.setopt(c.URL, dump_url)
+        c.setopt(c.WRITEDATA, f)
         c.perform()
         c.close()
     
@@ -119,7 +119,7 @@ def get_cuckoo_tag(task_id, REST_SERVER, REST_PORT):
     
     REST_REPORT_URL = 'http://%s:%s/tasks/report/' % (REST_SERVER, REST_PORT)
     
-    report_url = REST_REPORT_URL+str(task_id)
+    report_url = REST_REPORT_URL + str(task_id)
     
     report = requests.get(report_url).json()
 
