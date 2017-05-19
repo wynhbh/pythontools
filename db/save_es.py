@@ -1,20 +1,17 @@
 from elasticsearch import Elasticsearch
 import sys
+import json
 
-esclient = Elasticsearch(['http://10.10.4.224:9200'])
+esclient = Elasticsearch(['http://10.10.4.220:9200'])
 
-def save_es(events):
+def es_save_data(index, type, doc):
     """
-    :param events: event examples to be saved
+    :param doc: doc to be saved
     :return:
     """
 
-    for event in events:
-        event.duration = event.endtime - event.starttime
-        doc = event.tojson()
-        res = esclient.index(index="guowang-fw-event-" + event.date.replace('-', '.'), doc_type='fw-event-c2c',
-                             id=event.sda_id, body=doc)
-        print res
+    res = esclient.index(index=index, doc_type=type, body=doc)
+    print res
 
 
 def es_delete_index(index):
@@ -22,8 +19,6 @@ def es_delete_index(index):
     :param index: es index to be deleted
     :return:
     """
-    #sr = esclient.search(index)
-    #print index, sr
     
     re = esclient.indices.delete(index)
     print re
@@ -34,36 +29,20 @@ def main(argv):
     :return:
     """
 
-
-    #index = "guowang-waf-event-*"
-    #es_delete_index(index)
-    
-    """
-    indexs = ["guowang-ids-event-*",
-              "guowang-fw-event-*",
-              "guowang-fw-event-*",
-              "guowang-fw-knowledge",
-              "guowang-ids-event-*",
-              "guowang-ids-event-*",
-              "guowang-ids-knowledge",
-              "guowang-traffic-event-*",
-              "guowang-waf-event-*",
-              "guowang-waf-knowledge"]
-
-
-    indexs = ["daad_ids_event-2016.07.*",
-                "daad_ids_event-2016.08.*",
-                "daad_ids_event-2016.09.*",
-                "daad_ids_event-2016.10.*",
-                "daad_ids_event-2016.11.*",
-                "daad_ids_event-2016.12.*"]
-
-    """
-
     indexs = ["daad_waf_event-2016.11.*"]
 
-    for index in indexs:
-        es_delete_index(index)
+    #for index in indexs:
+    #    es_delete_index(index)
+
+    index = "ip2identity"
+    type = "ip2identity"
+
+    with open('ip2iden') as fr:
+        for i in fr:
+            j = i.strip().split(" ")
+            doc = {'ip': j[0], 'identity': j[1]}
+            json_str = json.dumps(doc)
+            es_save_data(index, type, json_str)
 
 
 if __name__ == '__main__':
