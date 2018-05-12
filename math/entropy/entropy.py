@@ -2,8 +2,8 @@ import sys
 import numpy as np
 
 
-def entropy(A):
-    """
+def entropy_2(A):
+    """ entropy with logarithm 2
     @param A:
     @return:
     """
@@ -21,7 +21,7 @@ def get_entropy(l):
     for j in lset:
         pi.append(l.count(j))
     npa = np.array(map(float, pi))
-    e = entropy(npa)
+    e = entropy_2(npa)
 
     return e
 
@@ -67,7 +67,6 @@ def main(argv):
     @param argv:
     @return:
     """
-    #test = [1.0, 2.0, 3.0]
 
     f = argv[0]
 
@@ -78,5 +77,15 @@ def main(argv):
         get_entropy_without_th(f)
 
 
+def test():
+
+    test1 = [1.0, 2.0]
+    test2 = [2.0, 3.0]
+
+    print get_entropy(test1)
+    print get_entropy(test2)
+
+
 if __name__ == "__main__":
-    main(sys.argv[1:])
+    # main(sys.argv[1:])
+    test()

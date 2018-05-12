@@ -93,5 +93,6 @@ def main(argv):
     entropy = get_entropy(s)
     print entropy
 
+
 if __name__ == "__main__":
     main(sys.argv[1:])
