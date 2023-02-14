@@ -37,5 +37,6 @@ def main(argv):
     os.chdir("/home/elasticsearch/wy")
     craw()
 
+
 if __name__ == "__main__":
     main(sys.argv)
