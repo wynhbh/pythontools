@@ -5,8 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c46d58de-685d-43c8-bc3e-068a0cef7f5e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/web/crawer/get_favicon.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/crawer/ek360.py" beforeDir="false" afterPath="$PROJECT_DIR$/web/crawer/ek360.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/crawer/get_favicon.py" beforeDir="false" afterPath="$PROJECT_DIR$/web/crawer/get_favicon.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
